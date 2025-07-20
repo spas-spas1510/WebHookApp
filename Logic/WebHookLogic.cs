@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net.Sockets;
 using System.Text.Json;
 using WebHookApp.Models;
 
@@ -6,12 +7,12 @@ namespace WebHookApp.Logic
 {
     public class WebHookLogic : IWebHookLogic
     {
-        private static Dictionary<string, long> openPostions = new Dictionary<string, long>();
+        private static Dictionary<string, long> activePostions = new Dictionary<string, long>();
         private string orderSendUrl = @"https://mt5full2.mtapi.io/OrderSend";
         private string orderCloseUrl = @"https://mt5full2.mtapi.io/OrderClose";
-        
+
         private readonly IWebSocketListener _webSocketListener;
-        private readonly IPostionModifier _postionModifier;        
+        private readonly IPostionModifier _postionModifier;
 
         public WebHookLogic(IWebSocketListener webSocketListener, IPostionModifier postionModifier)
         {
@@ -25,11 +26,18 @@ namespace WebHookApp.Logic
             {
                 var positionKey = GetPositionKey(webHookPayload.Action, webHookPayload.Symbol, webHookPayload.UserId.ToString());
 
-                if (openPostions.ContainsKey(positionKey))
+                if (activePostions.ContainsKey(positionKey))
                 {
-                    var errorText = $"Can not open more than one position for {webHookPayload.UserId} - {webHookPayload.Symbol}";
-                    Console.WriteLine(errorText);
-                    return new OkObjectResult(new { Error = errorText });
+                    if (await IsPostionClosed(webHookPayload.UserId, activePostions[positionKey]))
+                    {
+                        activePostions.Remove(positionKey);
+                    }
+                    else
+                    {                        
+                        var errorText = $"Can not open more than one position for {webHookPayload.UserId} - {webHookPayload.Symbol}";
+                        Console.WriteLine(errorText);
+                        return new OkObjectResult(new { Error = errorText });
+                    }
                 }
 
                 //close opposite position if exists
@@ -48,7 +56,7 @@ namespace WebHookApp.Logic
                     var postionResponse = JsonSerializer.Deserialize<PositionResponse>(body);
                     if (postionResponse != null && postionResponse.ticket > 0)
                     {
-                        openPostions.Add(positionKey, postionResponse.ticket);
+                        activePostions.Add(positionKey, postionResponse.ticket);
 
                         if (webHookPayload.TrailingDistanceDollars > 0 && webHookPayload.TrailingStepDollars > 0)
                         {
@@ -58,7 +66,7 @@ namespace WebHookApp.Logic
                         else if (webHookPayload.TakeProfitDollars > 0 && webHookPayload.StopLossDollars > 0)
                         {
                             await _postionModifier.ModifyPositionWithTpAndSl(webHookPayload.UserId.ToString(), postionResponse.ticket, postionResponse.openPrice, webHookPayload.Action, webHookPayload.TakeProfitDollars, webHookPayload.StopLossDollars);
-                        }                        
+                        }
 
                         Console.WriteLine($"Position open userId: {webHookPayload.UserId}");
                         return new OkResult();
@@ -88,12 +96,12 @@ namespace WebHookApp.Logic
                 var closePositionKey = GetClosePositionKey(webHookPayload.Symbol, webHookPayload.UserId.ToString());
                 long ticket = 0;
 
-                var openTradePositions = openPostions.Keys.Where(x => x.EndsWith(closePositionKey));
+                var openTradePositions = activePostions.Keys.Where(x => x.EndsWith(closePositionKey));
                 string text3 = "";
 
                 foreach (var openTradePosition in openTradePositions)
                 {
-                    if (!openPostions.TryGetValue(openTradePosition, out ticket))
+                    if (!activePostions.TryGetValue(openTradePosition, out ticket))
                     {
                         var text1 = $"Open position does not exist!";
                         Console.WriteLine(text1);
@@ -110,7 +118,7 @@ namespace WebHookApp.Logic
 
                     if (response.IsSuccessStatusCode)
                     {
-                        openPostions.Remove(openTradePosition);
+                        activePostions.Remove(openTradePosition);
                         var text2 = $"Position close userId: {webHookPayload.UserId}";
                         Console.WriteLine(text2);
                         return new OkResult();
@@ -128,6 +136,27 @@ namespace WebHookApp.Logic
                 Console.WriteLine(text4);
                 return new BadRequestObjectResult(new { Error = text4 });
             }
+        }
+
+        private async Task<bool> IsPostionClosed(Guid userId, long ticket)
+        {
+            var url = $@"https://mt5full2.mtapi.io/ClosedOrders?id={userId}";
+
+            using var client = _postionModifier.GetHttpClient();
+
+            var response = await client.GetAsync(url);
+            string body = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var closedPositions = JsonSerializer.Deserialize<List<PositionResponse>>(body);
+                if (closedPositions != null)
+                {
+                    return closedPositions.Any(x => x.ticket == ticket);
+                }
+            }
+
+            return false;
         }
 
         private string GetOrderCloseQueryParams(string userId, string ticket)
@@ -159,7 +188,7 @@ namespace WebHookApp.Logic
             var result = string.Join("&", queryParams);
 
             return result;
-        }        
+        }
 
         private string GetAction(string actionText)
         {
