@@ -15,7 +15,6 @@
           "Newtonsoft.Json": "13.0.3",
           "Swashbuckle.AspNetCore.SwaggerGen": "8.1.4",
           "Swashbuckle.AspNetCore.SwaggerUI": "8.1.4",
-          "Websocket.Client": "5.2.0",
           "runtimepack.Microsoft.NETCore.App.Runtime.linux-x64": "8.0.11",
           "runtimepack.Microsoft.AspNetCore.App.Runtime.linux-x64": "8.0.11"
         },
@@ -1440,14 +1439,6 @@
           }
         }
       },
-      "Microsoft.IO.RecyclableMemoryStream/3.0.0": {
-        "runtime": {
-          "lib/net6.0/Microsoft.IO.RecyclableMemoryStream.dll": {
-            "assemblyVersion": "3.0.0.0",
-            "fileVersion": "3.0.0.0"
-          }
-        }
-      },
       "Microsoft.OpenApi/1.6.23": {
         "runtime": {
           "lib/netstandard2.0/Microsoft.OpenApi.dll": {
@@ -1519,14 +1510,6 @@
           }
         }
       },
-      "System.Reactive/6.0.0": {
-        "runtime": {
-          "lib/net6.0/System.Reactive.dll": {
-            "assemblyVersion": "6.0.0.0",
-            "fileVersion": "6.0.0.1"
-          }
-        }
-      },
       "System.Text.Encodings.Web/9.0.7": {
         "runtime": {
           "lib/net8.0/System.Text.Encodings.Web.dll": {
@@ -1552,20 +1535,6 @@
           "lib/net8.0/System.Threading.Channels.dll": {
             "assemblyVersion": "9.0.0.0",
             "fileVersion": "9.0.725.31616"
-          }
-        }
-      },
-      "Websocket.Client/5.2.0": {
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "9.0.7",
-          "Microsoft.IO.RecyclableMemoryStream": "3.0.0",
-          "System.Reactive": "6.0.0",
-          "System.Threading.Channels": "9.0.7"
-        },
-        "runtime": {
-          "lib/net8.0/Websocket.Client.dll": {
-            "assemblyVersion": "5.2.0.0",
-            "fileVersion": "5.2.0.0"
           }
         }
       }
@@ -1713,13 +1682,6 @@
       "path": "microsoft.extensions.primitives/9.0.7",
       "hashPath": "microsoft.extensions.primitives.9.0.7.nupkg.sha512"
     },
-    "Microsoft.IO.RecyclableMemoryStream/3.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-irv0HuqoH8Ig5i2fO+8dmDNdFdsrO+DoQcedwIlb810qpZHBNQHZLW7C/AHBQDgLLpw2T96vmMAy/aE4Yj55Sg==",
-      "path": "microsoft.io.recyclablememorystream/3.0.0",
-      "hashPath": "microsoft.io.recyclablememorystream.3.0.0.nupkg.sha512"
-    },
     "Microsoft.OpenApi/1.6.23": {
       "type": "package",
       "serviceable": true,
@@ -1783,13 +1745,6 @@
       "path": "system.net.serversentevents/9.0.7",
       "hashPath": "system.net.serversentevents.9.0.7.nupkg.sha512"
     },
-    "System.Reactive/6.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-31kfaW4ZupZzPsI5PVe77VhnvFF55qgma7KZr/E0iFTs6fmdhhG8j0mgEx620iLTey1EynOkEfnyTjtNEpJzGw==",
-      "path": "system.reactive/6.0.0",
-      "hashPath": "system.reactive.6.0.0.nupkg.sha512"
-    },
     "System.Text.Encodings.Web/9.0.7": {
       "type": "package",
       "serviceable": true,
@@ -1810,13 +1765,6 @@
       "sha512": "sha512-mkUpBpVVhSGJC45HXrA1BcDEwOsIG54kRmVMOYbdY+iXVBrYBu/awDAApXi6v/vrwx6TaF6cfg/yi7IRrV4eRQ==",
       "path": "system.threading.channels/9.0.7",
       "hashPath": "system.threading.channels.9.0.7.nupkg.sha512"
-    },
-    "Websocket.Client/5.2.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-n0R/XnLmSwUbxvAVxzP//KNyjaErqLLPapRRK/D5KKUzpP0eI2+50TUpqsaCxlPaAOhuYEc3QHzVyG6AVOoPrA==",
-      "path": "websocket.client/5.2.0",
-      "hashPath": "websocket.client.5.2.0.nupkg.sha512"
     }
   },
   "runtimes": {

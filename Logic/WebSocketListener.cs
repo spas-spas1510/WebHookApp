@@ -2,6 +2,7 @@
 using System.Net.WebSockets;
 using System.Text;
 using WebHookApp.Models;
+using Websocket.Client;
 
 namespace WebHookApp.Logic
 {
@@ -34,9 +35,10 @@ namespace WebHookApp.Logic
             }
         }
 
-        private async Task ReceiveMessagesAsync(int ticket, double trailingDistance, double trailingStep, string action, double openPrice)
+        private async Task ReceiveMessagesAsync( int ticket, double trailingDistance, double trailingStep, string action, double openPrice)
         {
-            var buffer = new byte[1024 * 14];
+            var buffer = new byte[1024 * 4]; // 4KB buffer
+            var messageBuffer = new List<byte>();
 
             while (_webSocket?.State == WebSocketState.Open)
             {
@@ -50,14 +52,24 @@ namespace WebHookApp.Logic
                         break;
                     }
 
-                    var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    HandleWebSocketMessage(message, ticket, trailingDistance, trailingStep, action, openPrice);
+                    // Add received bytes to our message buffer
+                    messageBuffer.AddRange(new ArraySegment<byte>(buffer, 0, result.Count));
 
-                    Thread.Sleep(1000);
+                    // Check if this is the final fragment of the message
+                    if (result.EndOfMessage)
+                    {
+                        // Process complete message
+                        var completeMessage = Encoding.UTF8.GetString(messageBuffer.ToArray());
+                        HandleWebSocketMessage(completeMessage, ticket, trailingDistance, trailingStep, action, openPrice);
+
+                        // Clear buffer for next message
+                        messageBuffer.Clear();
+                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Receive error: {ex.Message}");
+                    messageBuffer.Clear(); // Clear buffer on error
                     break;
                 }
             }

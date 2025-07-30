@@ -13,5 +13,6 @@
         public string Strategy { get; set; }
         public Guid UserId { get; set; }
         public string BotToken { get; set; }
+        public string PositionDirection { get; set; }
     }
 }
