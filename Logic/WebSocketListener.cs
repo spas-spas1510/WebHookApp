@@ -18,7 +18,7 @@ namespace WebHookApp.Logic
 
         public async Task StartListening(WebHookPayload payload, int ticket, double openPrice)
         {
-            var uri = $"wss://mt5full2.mtapi.io/OnOrderProfit?id={payload.UserId}";
+            var uri = $"wss://mt5full3.mtapi.io/OnOrderProfit?id={payload.UserId}";
             _webSocket = new ClientWebSocket();
 
             try

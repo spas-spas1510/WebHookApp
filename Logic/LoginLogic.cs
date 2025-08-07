@@ -6,7 +6,7 @@ namespace WebHookApp.Logic
 {
     public class LoginLogic : ILoginLogic
     {
-        private const string connectExUrl = "https://mt5full2.mtapi.io/ConnectEx";
+        private const string connectExUrl = "https://mt5full3.mtapi.io/ConnectEx";
         private readonly IPostionModifier _postionModifier;
 
         public LoginLogic(IPostionModifier postionModifier)
@@ -38,6 +38,7 @@ namespace WebHookApp.Logic
                 $"user={login.AccountId.ToString()}",
                 $"password={Uri.EscapeDataString(login.Password)}",
                 $"server={login.Server}",
+                $"id={login.Id}",
                 $"connectTimeoutSeconds=60",
                 $"connectTimeoutClusterMemberSeconds=20"
             };

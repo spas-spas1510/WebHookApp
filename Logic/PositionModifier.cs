@@ -6,7 +6,7 @@ namespace WebHookApp.Logic
 {
     public class PositionModifier : IPostionModifier
     {
-        private string orderModifyUrl = @"https://mt5full2.mtapi.io/OrderModify";
+        private string orderModifyUrl = @"https://mt5full3.mtapi.io/OrderModify";
 
         private readonly IConfiguration _configuration;
         public PositionModifier(IConfiguration configuration)

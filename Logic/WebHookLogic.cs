@@ -8,8 +8,8 @@ namespace WebHookApp.Logic
     public class WebHookLogic : IWebHookLogic
     {
         private static Dictionary<string, long> activePostions = new Dictionary<string, long>();
-        private string orderSendUrl = @"https://mt5full2.mtapi.io/OrderSend";
-        private string orderCloseUrl = @"https://mt5full2.mtapi.io/OrderClose";
+        private string orderSendUrl = @"https://mt5full3.mtapi.io/OrderSend";
+        private string orderCloseUrl = @"https://mt5full3.mtapi.io/OrderClose";
 
         private readonly IWebSocketListener _webSocketListener;
         private readonly IPostionModifier _postionModifier;
@@ -140,7 +140,7 @@ namespace WebHookApp.Logic
 
         private async Task<bool> IsPostionClosed(Guid userId, long ticket)
         {
-            var url = $@"https://mt5full2.mtapi.io/ClosedOrders?id={userId}";
+            var url = $@"https://mt5full3.mtapi.io/ClosedOrders?id={userId}";
 
             using var client = _postionModifier.GetHttpClient();
 
