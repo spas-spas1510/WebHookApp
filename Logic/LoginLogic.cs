@@ -6,12 +6,13 @@ namespace WebHookApp.Logic
 {
     public class LoginLogic : ILoginLogic
     {
-        private const string connectExUrl = "https://mt5full3.mtapi.io/ConnectEx";
+        private readonly string connectExUrl;
         private readonly IPostionModifier _postionModifier;
 
-        public LoginLogic(IPostionModifier postionModifier)
+        public LoginLogic(IPostionModifier postionModifier, IConfiguration configuration)
         {
             _postionModifier = postionModifier;
+            connectExUrl = $"{configuration["ApiUrl"]}/ConnectEx";
         }
         public async Task<IActionResult> Login(Login login)
         {
@@ -37,11 +38,15 @@ namespace WebHookApp.Logic
             {
                 $"user={login.AccountId.ToString()}",
                 $"password={Uri.EscapeDataString(login.Password)}",
-                $"server={login.Server}",
-                $"id={login.Id}",
+                $"server={login.Server}",                
                 $"connectTimeoutSeconds=60",
                 $"connectTimeoutClusterMemberSeconds=20"
             };
+
+            if(login.Id != null && login.Id != Guid.Empty)
+            {
+                queryParams.Add($"id={login.Id}");
+            }
 
             var result = string.Join("&", queryParams);
 

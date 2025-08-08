@@ -6,12 +6,13 @@ namespace WebHookApp.Logic
 {
     public class PositionModifier : IPostionModifier
     {
-        private string orderModifyUrl = @"https://mt5full3.mtapi.io/OrderModify";
+        private readonly string orderModifyUrl;
 
         private readonly IConfiguration _configuration;
         public PositionModifier(IConfiguration configuration)
         {
             _configuration = configuration;
+            orderModifyUrl = $"{configuration["ApiUrl"]}/OrderModify";
         }
 
         public async Task<IActionResult> ModifyPositionWithTpAndSl(string userId, int ticket, double openPrice, string action, double tp, double sl)

@@ -10,15 +10,17 @@ namespace WebHookApp.Logic
     {
         private ClientWebSocket _webSocket;
         private readonly IPostionModifier _positionModifier;
+        private readonly string onOrderProfitUrl;
 
-        public WebSocketListener(IPostionModifier positionModifier)
+        public WebSocketListener(IPostionModifier positionModifier, IConfiguration configuration)
         {
             _positionModifier = positionModifier;
+            onOrderProfitUrl = configuration["ApiWss"];
         }
 
         public async Task StartListening(WebHookPayload payload, int ticket, double openPrice)
         {
-            var uri = $"wss://mt5full3.mtapi.io/OnOrderProfit?id={payload.UserId}";
+            var uri = $"{onOrderProfitUrl}?id={payload.UserId}";
             _webSocket = new ClientWebSocket();
 
             try

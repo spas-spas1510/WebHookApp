@@ -8,16 +8,22 @@ namespace WebHookApp.Logic
     public class WebHookLogic : IWebHookLogic
     {
         private static Dictionary<string, long> activePostions = new Dictionary<string, long>();
-        private string orderSendUrl = @"https://mt5full3.mtapi.io/OrderSend";
-        private string orderCloseUrl = @"https://mt5full3.mtapi.io/OrderClose";
+        private readonly string orderSendUrl;
+        private readonly string orderCloseUrl;
+        private readonly string closedOrdersUrl;
 
         private readonly IWebSocketListener _webSocketListener;
         private readonly IPostionModifier _postionModifier;
 
-        public WebHookLogic(IWebSocketListener webSocketListener, IPostionModifier postionModifier)
+
+        public WebHookLogic(IWebSocketListener webSocketListener, IPostionModifier postionModifier, IConfiguration configuration)
         {
             _webSocketListener = webSocketListener;
             _postionModifier = postionModifier;
+
+            orderSendUrl = $"{configuration["ApiUrl"]}/OrderSend";
+            orderCloseUrl = $"{configuration["ApiUrl"]}/OrderClose";
+            closedOrdersUrl = $@"{configuration["ApiUrl"]}/ClosedOrders";
         }
 
         public async Task<IActionResult> ExecuteMarketOrderWithApiToken(WebHookPayload webHookPayload)
@@ -140,8 +146,7 @@ namespace WebHookApp.Logic
 
         private async Task<bool> IsPostionClosed(Guid userId, long ticket)
         {
-            var url = $@"https://mt5full3.mtapi.io/ClosedOrders?id={userId}";
-
+            var url = $" {closedOrdersUrl}?id={userId}";
             using var client = _postionModifier.GetHttpClient();
 
             var response = await client.GetAsync(url);
