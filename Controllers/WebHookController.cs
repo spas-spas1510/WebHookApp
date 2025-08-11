@@ -37,14 +37,14 @@ namespace WebHookApp.Controllers
             }
             else if (payload.Action.ToLower() == "close")
             {
-                return await webHookLogic.CloseWithApiToken(payload);
+                await webHookLogic.CloseWithApiToken(payload);
+                return Ok();
             }
             else
             {
-                return await webHookLogic.CloseWithApiToken(payload);
+                await webHookLogic.CloseWithApiToken(payload);
+                return Ok();
             }
-
-            return Ok();
         }
 
         [HttpPost("login")]

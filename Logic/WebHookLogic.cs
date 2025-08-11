@@ -47,7 +47,12 @@ namespace WebHookApp.Logic
                 }
 
                 //close opposite position if exists
-                await CloseWithApiToken(webHookPayload, true);
+                var hasClosedPosition = await CloseWithApiToken(webHookPayload, true);
+
+                if (!webHookPayload.EnableContiniousTrades && hasClosedPosition)
+                {
+                    return new OkObjectResult("Previous position is closed");
+                }
 
                 var queryParams = GetOrderOpenQueryParams(webHookPayload);
                 var url = @$"{orderSendUrl}?{queryParams}";
@@ -94,7 +99,7 @@ namespace WebHookApp.Logic
             }
         }
 
-        public async Task<IActionResult> CloseWithApiToken(WebHookPayload webHookPayload, bool isOppositeOperation = false)
+        public async Task<bool> CloseWithApiToken(WebHookPayload webHookPayload, bool isOppositeOperation = false)
         {
             try
             {
@@ -111,7 +116,7 @@ namespace WebHookApp.Logic
                     {
                         var text1 = $"Open position does not exist!";
                         Console.WriteLine(text1);
-                        return new OkObjectResult(text1);
+                        return false;
                     }
 
                     var queryParams = GetOrderCloseQueryParams(webHookPayload.UserId.ToString(), ticket.ToString());
@@ -127,20 +132,20 @@ namespace WebHookApp.Logic
                         activePostions.Remove(openTradePosition);
                         var text2 = $"Position close userId: {webHookPayload.UserId}";
                         Console.WriteLine(text2);
-                        return new OkResult();
+                        return true;
                     }
 
                     text3 += $"Response: {response}; Body: {body}";
                     Console.WriteLine(text3);
                 }
 
-                return new BadRequestObjectResult(new { Error = text3 });
+                return false;
             }
             catch (Exception ex)
             {
                 var text4 = $"Exception in Close: {ex}";
                 Console.WriteLine(text4);
-                return new BadRequestObjectResult(new { Error = text4 });
+                return false;
             }
         }
 
