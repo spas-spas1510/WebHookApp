@@ -27,11 +27,13 @@ namespace WebHookApp.Controllers
                 return BadRequest("Invalid payload");
             }
 
+            payload.Action = payload.InvertDirection ? GetOppositeDirection(payload.Action) : payload.Action;
+
             if (payload.Action.ToLower() == "buy" && (payload.PositionDirection.ToLower() == "buy" || payload.PositionDirection.ToLower() == "buyandsell"))
             {
                 return await webHookLogic.ExecuteMarketOrderWithApiToken(payload);
             }
-            else if(payload.Action.ToLower() == "sell" && (payload.PositionDirection.ToLower() == "sell" || payload.PositionDirection.ToLower() == "buyandsell"))
+            else if (payload.Action.ToLower() == "sell" && (payload.PositionDirection.ToLower() == "sell" || payload.PositionDirection.ToLower() == "buyandsell"))
             {
                 return await webHookLogic.ExecuteMarketOrderWithApiToken(payload);
             }
@@ -54,8 +56,18 @@ namespace WebHookApp.Controllers
             {
                 return BadRequest("Invalid payload");
             }
-            
+
             return await loginLogic.Login(login);
+        }
+
+        private string GetOppositeDirection(string direction)
+        {
+            switch (direction.ToLower())
+            {
+                case "buy": return "sell";
+                case "sell": return "buy";
+                default: return "close";
+            }
         }
     }
 }

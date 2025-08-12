@@ -15,5 +15,6 @@
         public string BotToken { get; set; }
         public string PositionDirection { get; set; } = "BuyAndSell";
         public bool EnableContiniousTrades { get; set; } = false;
+        public bool InvertDirection { get; set; } = false;
     }
 }
