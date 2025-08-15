@@ -28,19 +28,15 @@ namespace WebHookApp.Controllers
             }
 
             payload.Action = payload.InvertDirection ? GetOppositeDirection(payload.Action) : payload.Action;
+            payload.Comment = payload.InvertDirection ? GetOppositeDirection(payload.Comment) : payload.Comment;
 
-            if (payload.Action.ToLower() == "buy" && (payload.PositionDirection.ToLower() == "buy" || payload.PositionDirection.ToLower() == "buyandsell"))
+            if (HasBuyCriteria(payload))
             {
                 return await webHookLogic.ExecuteMarketOrderWithApiToken(payload);
             }
-            else if (payload.Action.ToLower() == "sell" && (payload.PositionDirection.ToLower() == "sell" || payload.PositionDirection.ToLower() == "buyandsell"))
+            else if (HasSellCriteria(payload))
             {
-                return await webHookLogic.ExecuteMarketOrderWithApiToken(payload);
-            }
-            else if (payload.Action.ToLower() == "close")
-            {
-                await webHookLogic.CloseWithApiToken(payload);
-                return Ok();
+                return await webHookLogic.ExecuteMarketOrderWithApiToken(payload);            
             }
             else
             {
@@ -60,12 +56,28 @@ namespace WebHookApp.Controllers
             return await loginLogic.Login(login);
         }
 
+        private bool HasBuyCriteria(WebHookPayload payload)
+        {
+            return payload.Action.ToLower() == "buy" &&
+                (payload.PositionDirection.ToLower() == "buy" || payload.PositionDirection.ToLower() == "buyandsell") &&
+                (payload.Comment.ToLower() == "buy" || payload.Comment.ToLower() == "long");
+        }
+
+        private bool HasSellCriteria(WebHookPayload payload)
+        {
+            return payload.Action.ToLower() == "sell" && 
+                (payload.PositionDirection.ToLower() == "sell" || payload.PositionDirection.ToLower() == "buyandsell") &&
+                (payload.Comment.ToLower() == "sell" || payload.Comment.ToLower() == "short");
+        }
+
         private string GetOppositeDirection(string direction)
         {
             switch (direction.ToLower())
             {
                 case "buy": return "sell";
                 case "sell": return "buy";
+                case "short": return "long";
+                case "long": return "short";
                 default: return "close";
             }
         }
